@@ -1,5 +1,6 @@
 import random
 import heapq
+import time
 
 initstate = [1, 0, 2, 
              4, 5, 3,
@@ -21,6 +22,7 @@ class Puzzle:
 
 def main():
     print("Algorythm Starting")
+    startTime = time.time()
 
     # Randomize the order of the list
     random.shuffle(initstate)
@@ -32,7 +34,7 @@ def main():
 
     possibleMoves = []
     performedMoves = []
-    
+
     puzzleNumber = 0
 
     while puzzle.state != goal:
@@ -48,6 +50,7 @@ def main():
     
     print("Algorythm Complete!")
     print("Result: " + str(puzzle.state) + ", Puzzles processed: " + str(puzzleNumber))
+    print(f"Elapsed time: {(time.time() - startTime):.4f}")
 
 def is_solvable(state):
     inv_count = sum(
