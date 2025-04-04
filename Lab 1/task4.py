@@ -1,3 +1,6 @@
+import random
+import heapq
+
 initstate = [1, 0, 2, 
              4, 5, 3,
              7, 8, 6]
@@ -8,35 +11,50 @@ goal = [1, 2, 3,
 
 class Puzzle:
     def __init__(self, state=[], gWeight=0, hWeight=0):
-        self.state = state
+        self.state = state.copy()
         self.gWeight = gWeight
         self.fWeight = gWeight + hWeight
-        
-    state = []
-    fWeight = 0
-    gWeight = 0
+        # Define the < operator based on fWeight
+    def __lt__(self, other):
+      return self.fWeight < other.fWeight
 
 def main():
     print("Algorythm Starting")
+
+    # Randomize the order of the list
+    # random.shuffle(initstate)
+    # while not is_solvable(initstate):
+    #     random.shuffle(initstate)
+
     puzzle = Puzzle(initstate, gWeight=0, hWeight=0)
     print("Initial Puzzle: " + str(puzzle.state))
+
     possibleMoves = []
+    puzzleNumber = 0
 
     while puzzle.state != goal:
         # Add all new possible moves to the list based on the current puzzle
         calculateLegalMoves(possibleMoves, puzzle)
-        # Sort the list in Ascending order based on the fWeight
-        possibleMoves = sorted(possibleMoves, key=lambda p: p.fWeight)
-        puzzle = possibleMoves.pop(0) # Removes and returns the first element
-        print("New puzzle Calculated, current puzzle: " + str(puzzle.state))
+
+        # Pop the puzzle with the lowest fWeight
+        puzzle = heapq.heappop(possibleMoves)
+
+        puzzleNumber += 1
+        print("New puzzle Calculated, current puzzle: " + str(puzzle.state) + ", Puzzle number: " + str(puzzleNumber))
     
     print("Algorythm Complete!")
-    print("Result: " + str(puzzle.state))
+    print("Result: " + str(puzzle.state) + ", Puzzles processed: " + str(puzzleNumber))
 
+def is_solvable(state):
+    inv_count = sum(
+        1 for i in range(len(state)) for j in range(i+1, len(state))
+        if state[i] != 0 and state[j] != 0 and state[i] > state[j]
+    )
+    return inv_count % 2 == 0
 
-def calculateLegalMoves(possibleMoves_in, puzzle):
-    emptySpaceIndex = puzzle.state.index(0)
-    state = puzzle.state
+def calculateLegalMoves(possibleMovesList, oldPuzzle):
+    emptySpaceIndex = oldPuzzle.state.index(0)
+    state = oldPuzzle.state
 
     # Riktningar: (offset, boundary condition)
     moves = [
@@ -53,10 +71,10 @@ def calculateLegalMoves(possibleMoves_in, puzzle):
                 newState[emptySpaceIndex + offset], newState[emptySpaceIndex]
             )
 
-            gWeight = puzzle.gWeight + 1
-            hWeight = h1(newState)
+            gWeight = oldPuzzle.gWeight + 1
+            hWeight = h2(newState)
             newPuzzle = Puzzle(newState, gWeight, hWeight)
-            possibleMoves_in.append(newPuzzle)
+            heapq.heappush(possibleMovesList, newPuzzle)
 
 def h1(state):
     # Mängden felplacerade brickor är antalet brickor som inte är på sin rätta plats.
