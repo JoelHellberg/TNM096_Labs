@@ -14,7 +14,8 @@ class Puzzle:
         self.state = state.copy()
         self.gWeight = gWeight
         self.fWeight = gWeight + hWeight
-        # Define the < operator based on fWeight
+    
+    # Define the < operator based on fWeight
     def __lt__(self, other):
       return self.fWeight < other.fWeight
 
@@ -31,6 +32,7 @@ def main():
 
     possibleMoves = []
     performedMoves = []
+    
     puzzleNumber = 0
 
     while puzzle.state != goal:
