@@ -22,22 +22,24 @@ def main():
     print("Algorythm Starting")
 
     # Randomize the order of the list
-    # random.shuffle(initstate)
-    # while not is_solvable(initstate):
-    #     random.shuffle(initstate)
+    random.shuffle(initstate)
+    while not is_solvable(initstate):
+        random.shuffle(initstate)
 
     puzzle = Puzzle(initstate, gWeight=0, hWeight=0)
     print("Initial Puzzle: " + str(puzzle.state))
 
     possibleMoves = []
+    performedMoves = []
     puzzleNumber = 0
 
     while puzzle.state != goal:
         # Add all new possible moves to the list based on the current puzzle
-        calculateLegalMoves(possibleMoves, puzzle)
+        calculateLegalMoves(possibleMoves, performedMoves, puzzle)
 
         # Pop the puzzle with the lowest fWeight
         puzzle = heapq.heappop(possibleMoves)
+        performedMoves.append(puzzle)
 
         puzzleNumber += 1
         print("New puzzle Calculated, current puzzle: " + str(puzzle.state) + ", Puzzle number: " + str(puzzleNumber))
@@ -52,7 +54,7 @@ def is_solvable(state):
     )
     return inv_count % 2 == 0
 
-def calculateLegalMoves(possibleMovesList, oldPuzzle):
+def calculateLegalMoves(possibleMovesList, performedMovesList, oldPuzzle):
     emptySpaceIndex = oldPuzzle.state.index(0)
     state = oldPuzzle.state
 
@@ -72,9 +74,10 @@ def calculateLegalMoves(possibleMovesList, oldPuzzle):
             )
 
             gWeight = oldPuzzle.gWeight + 1
-            hWeight = h2(newState)
+            hWeight = h1(newState)
             newPuzzle = Puzzle(newState, gWeight, hWeight)
-            heapq.heappush(possibleMovesList, newPuzzle)
+            if not any(puzzle.state == newPuzzle.state for puzzle in performedMovesList):
+                heapq.heappush(possibleMovesList, newPuzzle)
 
 def h1(state):
     # Mängden felplacerade brickor är antalet brickor som inte är på sin rätta plats.
