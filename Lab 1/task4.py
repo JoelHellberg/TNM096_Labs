@@ -23,7 +23,7 @@ class Puzzle:
       return self.fWeight < other.fWeight
 
 def main():
-    global bestPath
+    bestPath : list = []
     print("\nAlgorythm Starting...")
     startTime = time.time()
 
@@ -34,7 +34,7 @@ def main():
 
     puzzle = Puzzle(initstate, gWeight=0, hWeight=0)
     print("Initial Puzzle: " + str(puzzle.state))
-    updateBestPath(puzzle)
+    updateBestPath(bestPath, puzzle)
 
     possibleMoves = []
     performedMoves = []
@@ -51,7 +51,7 @@ def main():
 
         puzzleNumber += 1
         # print("New puzzle Calculated, current puzzle: " + str(puzzle.state) + ", Puzzle number: " + str(puzzleNumber))
-        updateBestPath(puzzle)
+        updateBestPath(bestPath, puzzle)
     
     print("\nAlgorythm Complete!")
 
@@ -96,8 +96,7 @@ def calculateLegalMoves(possibleMovesList, performedMovesList, oldPuzzle):
             if not any(puzzle.state == newPuzzle.state for puzzle in performedMovesList):
                 heapq.heappush(possibleMovesList, newPuzzle)
 
-def updateBestPath(currentPuzzle):
-    global bestPath
+def updateBestPath(bestPath, currentPuzzle):
     currentG = currentPuzzle.gWeight
 
     while bestPath and bestPath[-1].gWeight >= currentG:
