@@ -2,13 +2,15 @@ import random
 import heapq
 import time
 
-initstate = [1, 0, 2, 
-             4, 5, 3,
-             7, 8, 6]
+initstate : list[int] = [7, 2, 4, 
+             5, 0, 6,
+             8, 3, 1]
 
-goal = [1, 2, 3,
+goal : list[int] = [1, 2, 3,
         4, 5, 6,
         7, 8, 0]
+
+bestPath : list = []
 
 class Puzzle:
     def __init__(self, state=[], gWeight=0, hWeight=0):
@@ -21,7 +23,8 @@ class Puzzle:
       return self.fWeight < other.fWeight
 
 def main():
-    print("Algorythm Starting")
+    global bestPath
+    print("\nAlgorythm Starting...")
     startTime = time.time()
 
     # Randomize the order of the list
@@ -31,6 +34,7 @@ def main():
 
     puzzle = Puzzle(initstate, gWeight=0, hWeight=0)
     print("Initial Puzzle: " + str(puzzle.state))
+    updateBestPath(puzzle)
 
     possibleMoves = []
     performedMoves = []
@@ -46,11 +50,19 @@ def main():
         performedMoves.append(puzzle)
 
         puzzleNumber += 1
-        print("New puzzle Calculated, current puzzle: " + str(puzzle.state) + ", Puzzle number: " + str(puzzleNumber))
+        # print("New puzzle Calculated, current puzzle: " + str(puzzle.state) + ", Puzzle number: " + str(puzzleNumber))
+        updateBestPath(puzzle)
     
-    print("Algorythm Complete!")
-    print("Result: " + str(puzzle.state) + ", Puzzles processed: " + str(puzzleNumber))
-    print(f"Elapsed time: {(time.time() - startTime):.4f}")
+    print("\nAlgorythm Complete!")
+
+    print("-----------------------------------")
+    print("Best Path: ")
+    for i in range(len(bestPath)):
+        print("Step " + str(i) + ": " + str(bestPath[i].state))
+    print("-----------------------------------")
+
+    print("Total branches traversed: " + str(puzzleNumber))
+    print(f"Elapsed time: {(time.time() - startTime):.4f}\n")
 
 def is_solvable(state):
     inv_count = sum(
@@ -83,6 +95,16 @@ def calculateLegalMoves(possibleMovesList, performedMovesList, oldPuzzle):
             newPuzzle = Puzzle(newState, gWeight, hWeight)
             if not any(puzzle.state == newPuzzle.state for puzzle in performedMovesList):
                 heapq.heappush(possibleMovesList, newPuzzle)
+
+def updateBestPath(currentPuzzle):
+    global bestPath
+    currentG = currentPuzzle.gWeight
+
+    while bestPath and bestPath[-1].gWeight >= currentG:
+        bestPath.pop()
+
+    bestPath.append(currentPuzzle)
+
 
 def h1(state):
     # Mängden felplacerade brickor är antalet brickor som inte är på sin rätta plats.
