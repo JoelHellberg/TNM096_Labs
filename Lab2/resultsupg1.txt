@@ -1,0 +1,12 @@
+Uppgift 1a:
+Depth-first graph search || Easy: 103.165 sec FAILED || Harder: 20+ min Manual stop || Hardest:Even worse didnt even try || Completes the first one but fails the latter takes to long
+AC-3 || Easy: 0.049 sec SOLVED || Harder: 0.055 FAILED || Hardest: 0.049 sec FAILED || Super fast Solves the easy one 
+(BT) Backtracking search || Easy: 32.099 sec SOLVED || Harder:5 min+ Manual stop || Hardest:5min + Manual stop || Like Depth-first but able to solve the first one
+Minconflicts || Easy: 70.7 sec FAiled || Harder: 73.01 sec FAIled || Hardest:73.76 sec Failed || Quite fast but doesnt solve
+
+Uppgift 1b:
+MRV || Easy: 03:33.77 Solved || Harder: Manual stop ||Hardest: Manual stop
+FC || Easy: 0.016 sec Solved || Harder: 01:02.02 SOLVED || Hardest:  0.35 Solved
+MVR + FC || Easy:0.0065 sec SOLVED || Harder: 0.024 sec SOLVED || Hardest: 0.021 sec SOLVED
+
+Of the Combinations tired MRV + FC works best togheter Followed by FC + BT alone, then only BT last MRV + BT
