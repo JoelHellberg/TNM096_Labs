@@ -1,0 +1,5 @@
+Uppgift 1a:
+Depth-first graph search || Easy: 103.165 sec FAILED, Harder: 20+ min Manual stop, Hardest:Even worse didnt even try
+AC-3 || Easy: 0.049 sec SOLVED, Harder: 0.055 FAILED, Hardest: 0.049 sec FAILED
+Backtracking search || Easy: 32.099 sec SOLVED, Harder:5 min+ Manual stop, Hardest:
+Minconflicts || Easy: 70.7 sec FAiled, Harder: 73.01 sec FAIled , Hardest:
