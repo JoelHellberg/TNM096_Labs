@@ -1,0 +1,40 @@
+a) "How large can n be for each of the algorythms? Why?"
+
+Both the deapth-first tree seach and backtracking search algorythms starts to become real slow at n = 30.
+However, the AC-3 algorythm doesn't start to become slow until around n = 300 
+and Min-conflicts only start becoming sorta slow at n = 5000.
+
+This makes sense because in the worst case, depth-first and backtracking search try every possible way to place the queens, 
+which results in n! possible arrangements. 
+This number grows extremely fast as n increases, making the algorithms slow even for relatively small boards.
+
+AC-3 works differently, it tries to remove impossible placements early by checking for conflicts between variables (columns). 
+It looks at all pairs of variables, which gives it a complexity of around n², since there are roughly n² arcs to process. 
+While this is much better than n!, it still becomes slow when n gets large.
+
+Min-conflicts starts with a random solution and then repeatedly moves queens that are in conflict to better positions. 
+Each move involves checking other queens, so the time per move grows with n. 
+But because it doesn’t explore all possible states, it stays much more efficient than the other methods for large n.
+
+b) "What Backtracking search settings works the best? Why?"
+
+The fastest Backtracking search setting (and by a lot) is when combining mrv that uses the Minimum Remaining Values heuristic
+and forward checking.
+
+c) "How many steps does Min-Conflicts require to do its work?"
+
+Since Min-Conflicts uses randomness there are different amount of steps for each time, 
+but for a value of 30 the amount of steps vary among values between 20 and 150.
+For a higher value such as a 1000 it varies among values between 1010 and 1050.
+
+d) "Compare the nature of the heuristics deployed in traditional state-based search and constraint-based problem solving."
+
+In traditional state-based search (like backtracking), heuristics are used to decide which variable to try next 
+and which value to give it, in a way that avoids bad choices. Examples are MRV, which picks the variable with the fewest options left, 
+and least-constraining value, which tries values that leave the most options for the rest. 
+These help the search not waste time on bad paths. 
+
+In constraint-based problem solving (like AC-3 and Min-Conflicts), heuristics try to cut down the problem early by removing impossible 
+choices or fixing mistakes as they happen. 
+For example, AC-3 keeps variables consistent with each other, and Min-Conflicts changes the queens that are causing problems. 
+These methods are often much faster, especially when the problem is big.
