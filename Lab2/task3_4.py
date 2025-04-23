@@ -1,4 +1,5 @@
 import random
+import copy
 
 classes = ['MT101', 'MT102', 'MT103', 'MT104', 'MT105', 'MT106', 'MT107',
  'MT201', 'MT202', 'MT203', 'MT204', 'MT205', 'MT206',
@@ -19,19 +20,42 @@ schedule = {
     16: {'TP51': '', 'SP34': '', 'K3': ''},
 }
 
+hours_to_avoid = [9, 12, 16]
+preferred_hours_for_mt501_02 = [13, 14]
+
 def main():
     assign_classes()
     schedule_min_conflict()
-    print_schedule()
+    print(f"Total conflicts: {total_conflicts()}")
+    print_schedule(schedule)
+    
+    create_empty_schedule()
+    assign_classes()
+    optimal_schedule, unsatisfied_count = schedule_with_preferences()
+    print(f"Optimal schedule with {unsatisfied_count} unsatisfied preferences and {total_conflicts()} total conflicts:")
+    print_schedule(optimal_schedule)
+
+
+def create_empty_schedule():
+    return {hour: {room: '' for room in classrooms} for hour in range(9, 17)}
 
 def assign_classes():
+    # Always reset the remaining classes explicitly here
     remaining_classes = classes.copy()
     random.shuffle(remaining_classes)
+
+    # Clear the schedule explicitly before assignment
+    for hour in schedule:
+        for room in schedule[hour]:
+            schedule[hour][room] = ''
 
     for hour in schedule:
         for room in schedule[hour]:
             if remaining_classes:
                 schedule[hour][room] = remaining_classes.pop()
+            else:
+                # No more classes to assign
+                schedule[hour][room] = ''
 
 def schedule_min_conflict(max_iterations=1000):
     for _ in range(max_iterations):
@@ -85,6 +109,7 @@ def move_first_conflict_from_slot(slot_in_time):
                 slot_in_time[original_room] = ''
                 schedule[time][room] = conflicting_class
                 conflicts = conflicts_in_slot(slot_in_time) + conflicts_in_slot(schedule[time])
+
                 if conflicts < min_conflicts:
                     min_conflicts = conflicts
                     best_time = time
@@ -117,18 +142,73 @@ def conflicts_in_slot(slot):
 
     return conflictsAmount
 
-def print_schedule():
+def print_schedule(s):
     print(f"{'Time':^12}", end="")
     for room in classrooms:
         print(f"{room:^12}", end="")
     print("\n" + "-" * (12 * (len(classrooms) + 1)))
 
-    for hour in sorted(schedule):
+    for hour in sorted(s):
         print(f"{hour}:00".center(12), end="  ")
         for room in classrooms:
-            class_name = schedule[hour][room] if schedule[hour][room] else "-"
+            class_name = s[hour][room] if s[hour][room] else "-"
             print(f"{class_name:^12}", end="  ")
         print()
+
+def count_unsatisfied_pref(schedule):
+    unsatisfied = 0
+    for hour in hours_to_avoid:
+        for room in schedule[hour]:
+            if schedule[hour][room]:
+                unsatisfied += 1
+    
+    for course in ['MT501', 'MT502']:
+        scheduled_hour = next((hour for hour, rooms in schedule.items() if course in rooms.values()), None)
+        if scheduled_hour not in preferred_hours_for_mt501_02:
+            unsatisfied += 2
+
+    return unsatisfied
+
+def schedule_with_preferences(iterations=1000):
+    best_schedule = None
+    min_unsatisfied = float('inf')
+
+    for _ in range(iterations):
+        # Shuffle and reassign classes to explore new configurations
+        assign_classes()
+
+        # Use min-conflicts logic to refine the schedule
+        for _ in range(100):  # Limit the number of adjustments per iteration
+            if total_conflicts() == 0 and count_unsatisfied_pref(schedule) == 0:
+                break
+
+            # Randomly pick a time slot with conflicts or unsatisfied preferences
+            time_slots = list(schedule.keys())
+            random.shuffle(time_slots)
+
+            for time in time_slots:
+                if conflicts_in_slot(schedule[time]) > 0 or has_unsatisfied_preferences(schedule, time):
+                    move_first_conflict_from_slot(schedule[time])
+                    break
+
+        # Evaluate the current schedule
+        unsatisfied_preferences = count_unsatisfied_pref(schedule)
+
+        # Update the best schedule if the current one is better
+        if unsatisfied_preferences < min_unsatisfied:
+            min_unsatisfied = unsatisfied_preferences
+            best_schedule = copy.deepcopy(schedule)
+
+    return best_schedule, min_unsatisfied
+        
+def has_unsatisfied_preferences(schedule, time):
+    for room in schedule[time]:
+        if time in hours_to_avoid and schedule[time][room]:
+            return True
+        if schedule[time][room] in ['MT501', 'MT502'] and time not in preferred_hours_for_mt501_02:
+            return True
+    return False
+
 
 if __name__ == "__main__":
     main()
