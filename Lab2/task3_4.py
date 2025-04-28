@@ -57,7 +57,7 @@ def assign_classes():
                 # No more classes to assign
                 schedule[hour][room] = ''
 
-def schedule_min_conflict(max_iterations=1000):
+def schedule_min_conflict(max_iterations=100):
     for _ in range(max_iterations):
         if total_conflicts() == 0:
             break
@@ -169,7 +169,7 @@ def count_unsatisfied_pref(schedule):
 
     return unsatisfied
 
-def schedule_with_preferences(iterations=1000):
+def schedule_with_preferences(iterations=500):
     best_schedule = None
     min_unsatisfied = float('inf')
 
@@ -186,8 +186,9 @@ def schedule_with_preferences(iterations=1000):
             time_slots = list(schedule.keys())
             random.shuffle(time_slots)
 
+            #print(count_unsatisfied_pref(schedule))
             for time in time_slots:
-                if conflicts_in_slot(schedule[time]) > 0 or has_unsatisfied_preferences(schedule, time):
+                if conflicts_in_slot(schedule[time]) > 0 or count_unsatisfied_pref(schedule) > 7:
                     move_first_conflict_from_slot(schedule[time])
                     break
 
