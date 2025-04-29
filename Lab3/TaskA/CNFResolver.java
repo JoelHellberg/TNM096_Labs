@@ -51,10 +51,10 @@ public class CNFResolver {
     }
 
     public static void main(String[] args) {
-        // Example usage
-        Clause c1 = new Clause(Set.of("P", "Q"));
-        Clause c2 = new Clause(Set.of("~P", "R"));
-        Clause c3 = new Clause(Set.of("~Q", "S"));
+        // Robbery puzzle
+        Clause c1 = new Clause(Set.of("A", "B", "C"));
+        Clause c2 = new Clause(Set.of("~C", "A"));
+        Clause c3 = new Clause(Set.of("~B", "A", "C"));
 
         Set<Clause> clauses = new HashSet<>();
         clauses.add(c1);
