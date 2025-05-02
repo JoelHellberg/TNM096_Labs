@@ -10,16 +10,22 @@ class Clause {
     }
 
     public Clause resolveWith(Clause other) {
+        Set<String> newLiterals = new HashSet<>(literals);
+        newLiterals.addAll(other.literals);
+        boolean resolved = false;
+        
         for (String literal : literals) {
             String negated = negate(literal);
             if (other.literals.contains(negated)) {
-                Set<String> newLiterals = new HashSet<>(literals);
-                newLiterals.addAll(other.literals);
                 newLiterals.remove(literal);
                 newLiterals.remove(negated);
-                return new Clause(newLiterals);
+                resolved = true;
             }
         }
+
+        if (resolved) {
+        return new Clause(newLiterals);
+    }
         return null; // No resolvable literal found
     }
 

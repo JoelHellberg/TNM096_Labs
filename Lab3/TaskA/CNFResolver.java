@@ -52,14 +52,24 @@ public class CNFResolver {
 
     public static void main(String[] args) {
         // Robbery puzzle
-        Clause c1 = new Clause(Set.of("A", "B", "C"));
-        Clause c2 = new Clause(Set.of("~C", "A"));
-        Clause c3 = new Clause(Set.of("~B", "A", "C"));
+        // Clause c1 = new Clause(Set.of("A", "B", "C"));
+        // Clause c2 = new Clause(Set.of("~C", "A"));
+        // Clause c3 = new Clause(Set.of("~B", "A", "C"));
+
+        Clause c1 = new Clause(Set.of("~sun", "~money", "ice"));
+        Clause c2 = new Clause(Set.of("~money", "ice", "movie"));
+        Clause c3 = new Clause(Set.of("~movie", "money"));
+        Clause c4 = new Clause(Set.of("~movie", "~ice"));
+        Clause c5 = new Clause(Set.of("movie"));
+        Clause c6 = new Clause(Set.of("sun", "money", "cry"));
 
         Set<Clause> clauses = new HashSet<>();
         clauses.add(c1);
         clauses.add(c2);
         clauses.add(c3);
+        clauses.add(c4);
+        clauses.add(c5);
+        clauses.add(c6);
 
         CNFResolver resolver = new CNFResolver();
         resolver.resolveAll(clauses);
