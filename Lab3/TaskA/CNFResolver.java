@@ -1,61 +1,84 @@
-package Lab3.TaskA;
-
 import java.util.*;
+
+class Clause {
+    Set<String> literals;
+
+    public Clause(Set<String> literals) {
+        this.literals = new HashSet<>(literals);
+    }
+
+    public Clause resolveWith(Clause other) {
+        for (String lit : literals) {
+            String negated = negate(lit);
+            if (other.literals.contains(negated)) {
+                Set<String> newLits = new HashSet<>(literals);
+                newLits.addAll(other.literals);
+                newLits.remove(lit);
+                newLits.remove(negated);
+
+                // Tautology check
+                for (String l : newLits) {
+                    if (newLits.contains(negate(l))) {
+                        return null;
+                    }
+                }
+                return new Clause(newLits);
+            }
+        }
+        return null;
+    }
+
+    public String negate(String literal) {
+        return literal.startsWith("~") ? literal.substring(1) : "~" + literal;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Clause)) return false;
+        Clause clause = (Clause) o;
+        return Objects.equals(literals, clause.literals);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(literals);
+    }
+
+    @Override
+    public String toString() {
+        return literals.toString();
+    }
+}
 
 public class CNFResolver {
 
-    public Set<Clause> resolveAll(Set<Clause> clauses) {
-        Set<Clause> newClauses = new LinkedHashSet<>(clauses);
-        boolean addedNew;
-        List<Clause> clauseList = new ArrayList<>(newClauses);
+    public static Set<Clause> runResolution(Set<Clause> KB) {
+        boolean changed;
+        Set<Clause> result = new LinkedHashSet<>(KB);
 
-        System.out.println("Initial Clauses:");
-        int index = 1;
-        Map<Clause, Integer> clauseNumbers = new HashMap<>();
-        for (Clause clause : clauseList) {
-            clauseNumbers.put(clause, index);
-            System.out.println("Clause " + index + ": " + clause);
-            index++;
-        }
-
-        System.out.println("\nResolution Steps:");
         do {
-            addedNew = false;
-            List<Clause> currentClauses = new ArrayList<>(newClauses);
+            changed = false;
+            Set<Clause> newClauses = new LinkedHashSet<>();
+            List<Clause> list = new ArrayList<>(result);
 
-            for (int i = 0; i < currentClauses.size(); i++) {
-                for (int j = i + 1; j < currentClauses.size(); j++) {
-                    Clause resolvent = currentClauses.get(i).resolveWith(currentClauses.get(j));
-                    if (resolvent != null && !newClauses.contains(resolvent)) {
-                        System.out.println("-----------------------------------");
-                        System.out.println("Resolving Clause " + clauseNumbers.get(currentClauses.get(i)) + " " + currentClauses.get(i));
-                        System.out.println("and Clause " + clauseNumbers.get(currentClauses.get(j)) + " " + currentClauses.get(j));
-                        System.out.println("Generated new clause: " + resolvent);
-
+            for (int i = 0; i < list.size(); i++) {
+                for (int j = i + 1; j < list.size(); j++) {
+                    Clause resolvent = list.get(i).resolveWith(list.get(j));
+                    if (resolvent != null && !result.contains(resolvent) && !newClauses.contains(resolvent)) {
                         newClauses.add(resolvent);
-                        clauseNumbers.put(resolvent, index++);
-                        addedNew = true;
+                        changed = true;
                     }
                 }
             }
-        } while (addedNew);
+            result.addAll(newClauses);
+        } while (changed);
 
-        System.out.println("-----------------------------------");
-        System.out.println("\nNo more new clauses can be generated.");
-        System.out.println("\nFinal Set of Clauses:");
-        for (Clause clause : newClauses) {
-            System.out.println("Clause " + clauseNumbers.get(clause) + ": " + clause);
-        }
-
-        return newClauses;
+        return result;
     }
 
     public static void main(String[] args) {
-        // Robbery puzzle
-        // Clause c1 = new Clause(Set.of("A", "B", "C"));
-        // Clause c2 = new Clause(Set.of("~C", "A"));
-        // Clause c3 = new Clause(Set.of("~B", "A", "C"));
-
+        // Initial KB from the image
         Clause c1 = new Clause(Set.of("~sun", "~money", "ice"));
         Clause c2 = new Clause(Set.of("~money", "ice", "movie"));
         Clause c3 = new Clause(Set.of("~movie", "money"));
@@ -63,15 +86,30 @@ public class CNFResolver {
         Clause c5 = new Clause(Set.of("movie"));
         Clause c6 = new Clause(Set.of("sun", "money", "cry"));
 
-        Set<Clause> clauses = new HashSet<>();
-        clauses.add(c1);
-        clauses.add(c2);
-        clauses.add(c3);
-        clauses.add(c4);
-        clauses.add(c5);
-        clauses.add(c6);
+        // Clause c1 = new Clause(Set.of("A", "B", "C"));
+        // Clause c2 = new Clause(Set.of("~C", "A"));
+        // Clause c3 = new Clause(Set.of("~B", "A", "C"));
 
-        CNFResolver resolver = new CNFResolver();
-        resolver.resolveAll(clauses);
+        Set<Clause> KB = new LinkedHashSet<>();
+        KB.add(c1);
+        KB.add(c2);
+        KB.add(c3);
+        KB.add(c4);
+        KB.add(c5);
+        KB.add(c6);
+
+        Set<Clause> resolvedKB = runResolution(KB);
+
+        System.out.println("Final KB:");
+        for (Clause c : resolvedKB) {
+            System.out.println(c);
+        }
+
+        System.out.println("\nConclusion:");
+        for (Clause c : resolvedKB) {
+            if (c.literals.size() == 1) {
+                System.out.println(" - " + c.literals.iterator().next());
+            }
+        }
     }
 }
