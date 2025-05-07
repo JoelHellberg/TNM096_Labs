@@ -78,22 +78,17 @@ public class CNFResolver {
     }
 
     public static void main(String[] args) {
-        /*Clause c1 = new Clause(Set.of("~sun", "~money", "ice"));
+        // Initial KB from the image
+        Clause c1 = new Clause(Set.of("~sun", "~money", "ice"));
         Clause c2 = new Clause(Set.of("~money", "ice", "movie"));
         Clause c3 = new Clause(Set.of("~movie", "money"));
         Clause c4 = new Clause(Set.of("~movie", "~ice"));
         Clause c5 = new Clause(Set.of("movie"));
         Clause c6 = new Clause(Set.of("sun", "money", "cry"));
 
-        Clause c1 = new Clause(Set.of("A", "B", "C"));
-        Clause c2 = new Clause(Set.of("~C", "A"));
-        Clause c3 = new Clause(Set.of("~B", "A", "C"));*/
-
-        Clause c1 = new Clause(Set.of("safe", "pit", "wumpus"));
-        Clause c2 = new Clause(Set.of("(1,2)", "pit"));
-        Clause c3 = new Clause(Set.of("(1,2)", "~pit"));
-        Clause c4 = new Clause(Set.of("(1,2)", "wumpus"));
-        Clause c5 = new Clause(Set.of("(1,2)", "~wumpus"));
+        // Clause c1 = new Clause(Set.of("A", "B", "C"));
+        // Clause c2 = new Clause(Set.of("~C", "A"));
+        // Clause c3 = new Clause(Set.of("~B", "A", "C"));
 
         Set<Clause> KB = new LinkedHashSet<>();
         KB.add(c1);
@@ -101,7 +96,9 @@ public class CNFResolver {
         KB.add(c3);
         KB.add(c4);
         KB.add(c5);
-        //KB.add(c6);
+        KB.add(c6);
+
+        // Clause c7 = new Clause(Set.of("(1,1)", "wumpus", "pit"));
 
         Set<Clause> resolvedKB = runResolution(KB);
 
