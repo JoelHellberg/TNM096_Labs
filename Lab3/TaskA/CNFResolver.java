@@ -89,18 +89,18 @@ public class CNFResolver {
         Clause c2 = new Clause(Set.of("~C", "A"));
         Clause c3 = new Clause(Set.of("~B", "A", "C"));*/
 
-        Clause c1 = new Clause(Set.of("safe", "pit", "wumpus"));
-        Clause c2 = new Clause(Set.of("(1,2)", "pit"));
-        Clause c3 = new Clause(Set.of("(1,2)", "~pit"));
-        Clause c4 = new Clause(Set.of("(1,2)", "wumpus"));
-        Clause c5 = new Clause(Set.of("(1,2)", "~wumpus"));
+        Clause c1 = new Clause(Set.of("(2,2)", "wumpus"));
+        Clause c2 = new Clause(Set.of("(2,2)", "~wumpus"));
+        //Clause c3 = new Clause(Set.of("(1,2)", "~pit"));
+        //Clause c4 = new Clause(Set.of("(1,2)", "wumpus"));
+        //Clause c5 = new Clause(Set.of("(1,2)", "~wumpus"));
 
         Set<Clause> KB = new LinkedHashSet<>();
         KB.add(c1);
         KB.add(c2);
-        KB.add(c3);
-        KB.add(c4);
-        KB.add(c5);
+        //KB.add(c3);
+        //KB.add(c4);
+        //KB.add(c5);
         //KB.add(c6);
 
         Set<Clause> resolvedKB = runResolution(KB);

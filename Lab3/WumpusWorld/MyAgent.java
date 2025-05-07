@@ -4,6 +4,7 @@ public class MyAgent implements Agent
 {
     private World w;
     List<String> visitedPositions = new ArrayList<>();
+    Set<Clause> KB = new LinkedHashSet<>();
     
     public MyAgent(World world)
     {
@@ -16,11 +17,75 @@ public class MyAgent implements Agent
         }
         w = world;
     }
-    
-
-    Set<Clause> KB = new LinkedHashSet<>();
 
  
+    public void shootWumpusIfPossible(String possibleWumpusPos) {
+        int cX = w.getPlayerX();
+        int cY = w.getPlayerY();
+        String currentPos = "(" + cX + "," + cY + ")";
+    
+        // Only proceed if this is a new position
+        if (!Arrays.asList(visitedPositions).contains(currentPos)) {
+            List<String> safePositions = new ArrayList<>(List.of("(1,1)"));
+    
+            // Resolve known facts
+            KB = CNFResolver.runResolution(KB);
+    
+            for (Clause clause : KB) {
+                if (clause.literals.size() == 1) {
+                    safePositions.add(clause.literals.iterator().next());
+                }
+            }
+    
+            // Try to deduce Wumpus position
+            Set<Clause> testKB = new LinkedHashSet<>(KB);
+            Clause wumpusHint = new Clause(Set.of(possibleWumpusPos, "~wumpus"));
+            testKB.add(wumpusHint);
+            testKB = CNFResolver.runResolution(testKB);
+    
+            List<String> wumpusCandidates = new ArrayList<>();
+            for (Clause clause : testKB) {
+                if (clause.literals.size() == 1) {
+                    wumpusCandidates.add(clause.literals.iterator().next());
+                }
+            }
+    
+            // Filter out known safe positions
+            wumpusCandidates.removeAll(safePositions);
+    
+            if (!wumpusCandidates.isEmpty()) {
+                String candidate = wumpusCandidates.get(0);
+                System.out.println("Wumpus candidate: " + candidate);
+    
+                String[] parts = candidate.replaceAll("[()]", "").split(",");
+                int targetX = Integer.parseInt(parts[0]);
+                int targetY = Integer.parseInt(parts[1]);
+    
+                // Check adjacency
+                if (targetX == cX && targetY == cY + 1) {
+                    System.out.println("SHOOT UP");
+                    w.doAction(World.A_SHOOT_UP);
+                } else if (targetX == cX && targetY == cY - 1) {
+                    System.out.println("SHOOT DOWN");
+                    w.doAction(World.A_SHOOT_DOWN);
+                } else if (targetX == cX - 1 && targetY == cY) {
+                    System.out.println("SHOOT LEFT");
+                    w.doAction(World.A_SHOOT_LEFT);
+                } else if (targetX == cX + 1 && targetY == cY) {
+                    System.out.println("SHOOT RIGHT");
+                    w.doAction(World.A_SHOOT_RIGHT);
+                } else {
+                    System.out.println("Shooting target is not adjacent!");
+                }
+    
+                if (!w.wumpusAlive()) {
+                    KB.add(new Clause(Set.of("~wumpus")));
+                }
+            }
+        }
+    }
+    
+
 // Ask your solver to do an action
 
     public void doAction()
@@ -28,7 +93,6 @@ public class MyAgent implements Agent
         //Location of the player
         int cX = w.getPlayerX();
         int cY = w.getPlayerY();
-        visitedPositions.add("(" + cX + "," + cY + ")");
         System.out.println("Current position: (" + cX + ", " + cY + ")");
         
         //Basic action:
@@ -50,6 +114,35 @@ public class MyAgent implements Agent
         
         
         //Test the environment
+        if (w.hasBreeze(cX, cY) && w.hasStench(cX, cY))
+        {
+            System.out.println("I am in a Breeze and Stench");
+            if(cX > 1) {
+                String neighbourPos = "(" + (cX - 1) + "," + cY +  ")";
+                shootWumpusIfPossible(neighbourPos);
+                Clause c = new Clause(Set.of(neighbourPos, "pit", "wumpus"));
+                KB.add(c);
+            }
+            if(cX < 4) {
+                String neighbourPos = "(" + (cX + 1) + "," + cY +  ")";
+                shootWumpusIfPossible(neighbourPos);
+                Clause c = new Clause(Set.of(neighbourPos, "pit", "wumpus"));
+                KB.add(c);
+            }
+            if(cY > 1) {
+                String neighbourPos = "(" + (cX) + "," + (cY - 1) +  ")";
+                shootWumpusIfPossible(neighbourPos);
+                Clause c = new Clause(Set.of(neighbourPos, "pit", "wumpus"));
+                KB.add(c);
+            }
+            if(cY < 4) {
+                String neighbourPos = "(" + (cX) + "," + (cY + 1) +  ")";
+                shootWumpusIfPossible(neighbourPos);
+                Clause c = new Clause(Set.of(neighbourPos, "pit", "wumpus"));
+                KB.add(c);
+            }
+        }
+        
         if (w.hasBreeze(cX, cY))
         {
             if(cX > 1) {
@@ -95,19 +188,27 @@ public class MyAgent implements Agent
         if (w.hasStench(cX, cY))
         {
             if(cX > 1) {
-                Clause c = new Clause(Set.of("(" + (cX - 1) + "," + cY +  ")", "wumpus"));
+                String neighbourPos = "(" + (cX - 1) + "," + cY +  ")";
+                shootWumpusIfPossible(neighbourPos);
+                Clause c = new Clause(Set.of(neighbourPos, "pit", "wumpus"));
                 KB.add(c);
             }
             if(cX < 4) {
-                Clause c = new Clause(Set.of("(" + (cX + 1) + "," + cY +  ")", "wumpus"));
+                String neighbourPos = "(" + (cX + 1) + "," + cY +  ")";
+                shootWumpusIfPossible(neighbourPos);
+                Clause c = new Clause(Set.of(neighbourPos, "pit", "wumpus"));
                 KB.add(c);
             }
             if(cY > 1) {
-                Clause c = new Clause(Set.of("(" + (cX) + "," + (cY - 1) +  ")", "wumpus"));
+                String neighbourPos = "(" + (cX) + "," + (cY - 1) +  ")";
+                shootWumpusIfPossible(neighbourPos);
+                Clause c = new Clause(Set.of(neighbourPos, "pit", "wumpus"));
                 KB.add(c);
             }
             if(cY < 4) {
-                Clause c = new Clause(Set.of("(" + (cX) + "," + (cY + 1) +  ")", "wumpus"));
+                String neighbourPos = "(" + (cX) + "," + (cY + 1) +  ")";
+                shootWumpusIfPossible(neighbourPos);
+                Clause c = new Clause(Set.of(neighbourPos, "pit", "wumpus"));
                 KB.add(c);
             }
             System.out.println("I am in a Stench");
@@ -137,6 +238,7 @@ public class MyAgent implements Agent
             System.out.println("I am in a Pit");
         }
 
+        visitedPositions.add("(" + cX + "," + cY + ")");
         KB = CNFResolver.runResolution(KB);
 
          
