@@ -8,6 +8,7 @@ public class MyAgent implements Agent {
 
     public MyAgent(World world) {
         w = world;
+        KB.add(new Clause(Set.of("(1,1)")));
     }
 
     private List<String> getAdjacentPositions(int x, int y) {
@@ -26,7 +27,7 @@ public class MyAgent implements Agent {
 
     private List<String> findSafePositions() {
         KB = CNFResolver.runResolution(KB);
-        List<String> safePositions = new ArrayList<>(List.of("(1,1)"));
+        List<String> safePositions = new ArrayList<>();
         for (Clause clause : KB) {
             if (clause.literals.size() == 1) {
                 safePositions.add(clause.literals.iterator().next());
