@@ -1,8 +1,9 @@
 import java.util.*;
 
 public class MyAgent implements Agent {
-    private World w;
     Random rand = new Random();
+    
+    private World w;
     List<String> visitedPositions = new ArrayList<>();
     Set<Clause> KB = new LinkedHashSet<>();
 
@@ -42,19 +43,13 @@ public class MyAgent implements Agent {
         System.out.println("Current position: " + currentPos);
     
         if (w.hasGlitter(cX, cY)) { w.doAction(World.A_GRAB); return; }
-        if (w.isInPit()) { w.doAction(World.A_CLIMB); return; }
+        if (w.isInPit()) { w.doAction(World.A_CLIMB); }
     
         boolean breeze = w.hasBreeze(cX, cY);
         boolean stench = w.hasStench(cX, cY);
         List<String> neighbors = getAdjacentPositions(cX, cY);
     
-        if (breeze && stench) {
-            System.out.println("I am in a Breeze and Stench");
-            for (String pos : neighbors) {
-                shootWumpusIfPossible(pos, currentPos);
-                KB.add(new Clause(Set.of(pos, "pit", "wumpus")));
-            }
-        } else if (!breeze && !stench) {
+        if (!breeze && !stench) {
             System.out.println("I am in a clear area");
             for (String pos : neighbors) {
                 KB.add(new Clause(Set.of(pos)));
@@ -85,14 +80,22 @@ public class MyAgent implements Agent {
     
         List<String> safePositions = findSafePositions();
 
+        List<String> adjacentMoves = new ArrayList<>(getAdjacentPositions(cX, cY));
+
         List<String> adjacentSafeMoves = new ArrayList<>(getAdjacentPositions(cX, cY));
         adjacentSafeMoves.retainAll(safePositions);
 
+        List<String> unvisitedSafeMoves = new ArrayList<>(safePositions);
+        unvisitedSafeMoves.removeAll(visitedPositions);
+    
         List<String> unvisitedAdjacentSafeMoves = new ArrayList<>(adjacentSafeMoves);
         unvisitedAdjacentSafeMoves.removeAll(visitedPositions);
     
         String bestMove = unvisitedAdjacentSafeMoves.isEmpty() 
-        ? adjacentSafeMoves.get(rand.nextInt(adjacentSafeMoves.size())) 
+        ? unvisitedSafeMoves.isEmpty() || adjacentSafeMoves.isEmpty()
+        ? adjacentMoves.get(rand.nextInt(adjacentMoves.size()))  
+        : adjacentSafeMoves.get(rand.nextInt(adjacentSafeMoves.size())) 
+
         : unvisitedAdjacentSafeMoves.get(0);
 
         String[] parts = bestMove.replaceAll("[()]", "").split(",");
