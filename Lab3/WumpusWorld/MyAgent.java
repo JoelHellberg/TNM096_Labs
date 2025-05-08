@@ -131,6 +131,7 @@ public class MyAgent implements Agent {
             }
         }
         candidates.removeAll(safePositions);
+        candidates.removeAll(visitedPositions);
         return candidates;
     }
     
