@@ -1,36 +1,74 @@
-% actions
-act( go(X,Y),                         % action name
-     [is_adjacent(X,Y), is_on_floor], % preconditions
-     [is_on_pos(X)],                  % delete
-     [is_on_pos(Y)]                   % add
-     ).
+initial_state([
+    at(room3),
+    
+    adjacent(room4, corridor), adjacent(corridor, room4),
+    light_on(room4),
+    
+    adjacent(room3, corridor), adjacent(corridor, room3),
+    light_off(room3),
+    
+    adjacent(room2, corridor), adjacent(corridor, room2),
+    light_off(room2),
+    
+    adjacent(room1, corridor), adjacent(corridor, room1),
+    light_on(room1),
+    box(box1), box_at(box1, room1),
+    box(box2), box_at(box2, room1),
+    box(box3), box_at(box3, room1),
+    box(box4), box_at(box4, room1),
+    
+    on(floor)
+]).
 
-act( push(B, X, Y),
-     [is_adjacent(X,Y), is_on_floor, light_is_on(S)],
-     [is_on_pos(X)],
-     [is_on_pos(Y)]
-     ).
+goal_state([at(room1)]).
+% goal_state([light_off(light1)]).
+% goal_state([ box_at(box2, room2) ]).
 
-act( climb_up(B),
-     [next_to_box(X,B), is_on_floor],
-     [is_on_floor],
-     [is_on_box(B)],
-     ).
+% Move from location X to adjacent location Y (e.g., room-to-room or within-room)
+act(
+    go(X, Y),
+    [at(X), adjacent(X, Y)],
+    [at(X)],
+    [at(Y)]
+).
 
-act( climb_down(B),
-     [next_to_box(X,B), is_on_box(B)],
-     [is_on_box(B)],
-     [is_on_floor],
-     ).
+% Push box B from location X to Y (same room only, and light must be on at X)
+act(
+    push(B, X, Y),
+    [at(X), box_at(B, X), box(B), adjacent(X, Y), light_on(X)],
+    [box_at(B, X)],
+    [box_at(B, Y)]
+).
 
-act( turn_on(S),
-     [is_on_box(B), box_under_light(B,S), light_is_off],
-     [light_is_off],
-     [light_is_on],
-     ).
+% Climb up onto box B (must be at same location as box and on floor)
+act(
+    climbUp(B),
+    [box_at(B, X), at(X), on(floor)],
+    [on(floor)],
+    [on(box(B))]
+).
 
-act( turn_off(S),
-     [is_on_box(B), box_under_light(B,S), light_is_on],
-     [light_is_on],
-     [light_is_off],
-     ).
+% Climb down from box B (must be on the box and at the same location)
+act(
+    climbDown(B),
+    [box_at(B, X), at(X), on(box(B))],
+    [on(box(B))],
+    [on(floor)]
+).
+
+% Turn on light S (must be on box under switch S, and the switch must be off)
+act(
+    turnOn(S),
+    [switch_at(S, X), at(X), box_at(B, X), on(box(B)), light_off(S)],
+    [light_off(S)],
+    [light_on(S)]
+).
+
+% Turn off light S (must be on box under switch S, and the switch must be on)
+act(
+    turnOff(S),
+    [switch_at(S, X), at(X), box_at(B, X), on(box(B)), light_on(S)],
+    [light_on(S)],
+    [light_off(S)]
+).
+
