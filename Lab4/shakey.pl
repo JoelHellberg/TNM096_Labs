@@ -36,7 +36,7 @@ act(
     [at(Y)]
 ).
 
-% Push box B from location X to Y (requires light to be on)
+% Find the box in a room
 act(
     findBox(B, X),
     [at(X), box_at(B, X), box(B), switch_at(S, X), light_on(S), box_found(B, false)],
